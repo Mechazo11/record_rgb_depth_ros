@@ -24,7 +24,7 @@ class DatasetCaptureNode:
         rospy.set_param("r0_depth0", "NULL")
         rospy.set_param("r1_cam0", "NULL")
         rospy.set_param("r1_depth0", "NULL")
-        rospy.set_param("save_data", False)
+        # rospy.set_param("save_data", True)
         
         self.br = CvBridge()
         
@@ -34,6 +34,8 @@ class DatasetCaptureNode:
         self.robot0_depth0 = rospy.get_param("~r0_depth0")
         self.robot1_cam0 = rospy.get_param("~r1_cam0")
         self.robot1_depth0 = rospy.get_param("~r1_depth0")
+        #self.save_data = rospy.get_param("~save_data")
+        self.save_data = True
         
         print()
         print(f"self.robot0_cam0 : {self.robot0_cam0}")
@@ -80,11 +82,12 @@ class DatasetCaptureNode:
         except CvBridgeError as e:
             print(e)
 
-        try:
-            cv2.imwrite(im_path,rgb_img)
-            pass
-        except:  # noqa: E722
-            print("Failed to write rgb image for robot0_cam0!!")
+        if self.save_data:
+            try:
+                cv2.imwrite(im_path,rgb_img)
+                pass
+            except:  # noqa: E722
+                print("Failed to write rgb image for robot0_cam0!!")
 
         # Display the image
         cv2.imshow("Robot0 cam0", rgb_img)
@@ -133,11 +136,11 @@ class DatasetCaptureNode:
             # for storing it as png, we need to convert it to 16UC1 again (depth in mm)
             depth_img_mm = (depth_img_scaled*1000).astype(np.uint16)
             depth_path = self.r0_depth0_dir + str(depth_timestamp)+".png"
-            
-            try:
-                cv2.imwrite(depth_path, depth_img_mm)
-            except:
-                print("Failed to write depth image for robot0_depth0!!")
+            if self.save_data:
+                try:
+                    cv2.imwrite(depth_path, depth_img_mm)
+                except:
+                    print("Failed to write depth image for robot0_depth0!!")
 
             depth_img_mm_8bit = cv2.normalize(depth_img_mm, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
             cv2.imshow("Robot0 depth0", depth_img_mm_8bit)

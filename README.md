@@ -1,5 +1,7 @@
 ## dataset_capture
 
+TODO: When time permits, I will clean this README up with proper examples and a test rosbag to try this code out in action
+
 Python node that takes CompressedDepth and compressed rgb image and saves them directly in RBKAIROS dataset format.
 
 Topic names [updated 04/15/2024] \
