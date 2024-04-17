@@ -21,15 +21,24 @@ class DatasetCaptureNode:
         # Initialize ROS
         rospy.init_node('depth_to_grayscale_node', anonymous=True)
         rospy.set_param("r0_cam0", "NULL")
+        rospy.set_param("r0_depth0", "NULL")
+        rospy.set_param("r1_cam0", "NULL")
+        rospy.set_param("r1_depth0", "NULL")
+        
         self.br = CvBridge()
         
         # my_param_value = rospy.get_param('~my_param', default_value)
         # Parse topic names
         self.robot0_cam0 = rospy.get_param("~r0_cam0")
-        # self.robot0_depth0 = self.args.robot0_depth0_comp
+        self.robot0_depth0 = rospy.get_param("~r0_depth0")
+        self.robot1_cam0 = rospy.get_param("~r1_cam0")
+        self.robot1_depth0 = rospy.get_param("~r1_depth0")
         
         print()
-        print(f"_robot0_cam0: {self.robot0_cam0}")
+        print(f"self.robot0_cam0 : {self.robot0_cam0}")
+        print(f"self.robot0_depth0: {self.robot0_depth0}")
+        print(f"self.robot1_cam0 : {self.robot1_cam0}")
+        print(f"self.robot1_depth0: {self.robot1_depth0}")
         print()
 
         #self.robot0_cam0_sub_ = rospy.Subscriber('robot0_cam0', Image, self.robot0_cam0_callback)
