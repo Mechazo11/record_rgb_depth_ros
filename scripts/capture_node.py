@@ -63,17 +63,26 @@ class DatasetCaptureNode:
         # Initialize work variables
         rgb_img = None
         rgb_timestamp = None
+        im_path = None
         try:
             rgb_img = self.br.compressed_imgmsg_to_cv2(data, "bgr8")
+            # Convert the timestamp to a Python datetime object (if needed)
+            rgb_timestamp = int(rospy.Time.to_sec(data.header.stamp) * 1000)
+            im_path = self.r0_cam0_dir + str(rgb_timestamp)+".png"
+            print(im_path)
         except CvBridgeError as e:
             print(e)
         
-        # Convert the timestamp to a Python datetime object (if needed)
-        rgb_timestamp = int(rospy.Time.to_sec(data.header.stamp) * 1000)
-        print("Image timestamp:", rgb_timestamp)
+        # print("Image timestamp:", rgb_timestamp)
+        cv2.imwrite(im_path,rgb_img)
+        
+        # try:
+        #     cv2.imwrite(im_path,rgb_img)
+        # except:  # noqa: E722
+        #     print("Failed to write rgb image for robot0_cam0!!")
 
         # Display the image
-        cv2.imshow("Robot0 Camera 0", rgb_img)
+        cv2.imshow("Robot0 cam0", rgb_img)
         cv2.waitKey(1)  # Wait for a key press (1 millisecond)
         
 
@@ -104,10 +113,6 @@ class DatasetCaptureNode:
         bx = int(ros_msg.header.stamp.to_time() * 1000) # sec.nanosec in float to long integer
         return bx
 
-    # def run(self):
-    #     """Method to keep ROS node alive, blocking loop."""
-    #     print("Running")
-    #     rospy.spin()
 
 # Main entry point of the script
 if __name__ == '__main__':
