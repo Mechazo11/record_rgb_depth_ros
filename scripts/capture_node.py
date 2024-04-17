@@ -61,13 +61,17 @@ class DatasetCaptureNode:
     def robot0_cam0_callback(self,data):
         """rgb image callback for robot0"""
         # Initialize work variables
-        print("robot0_cam0 callback!")
         rgb_img = None
+        rgb_timestamp = None
         try:
             rgb_img = self.br.compressed_imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
             print(e)
-            
+        
+        # Convert the timestamp to a Python datetime object (if needed)
+        rgb_timestamp = int(rospy.Time.to_sec(data.header.stamp) * 1000)
+        print("Image timestamp:", rgb_timestamp)
+
         # Display the image
         cv2.imshow("Robot0 Camera 0", rgb_img)
         cv2.waitKey(1)  # Wait for a key press (1 millisecond)
