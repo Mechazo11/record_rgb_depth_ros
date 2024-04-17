@@ -7,7 +7,6 @@ from std_msgs.msg import String # To pass string messages
 from cv_bridge import CvBridge
 import os # Misc. operating system interface functions
 import time # Python timing functions
-import argparse # To accept user arguments from commandline
 import cv2 # OpenCV
 import tqdm # Prints a progress bar on console
 from pathlib import Path # To find the "home" directory location
@@ -17,26 +16,27 @@ import shutil # High level folder operation tool
 class DatasetCaptureNode:
     def __init__(self):
         
-        self.parser=argparse.ArgumentParser()
         
         # Commandline parameters
-        self.parser.add_argument('robot0_cam0_comp', default='NULL', help='Topic publishing compressed rectified image for robot0') 
-        self.parser.add_argument('robot0_depth0_comp', default='NULL', help='Topic publishing compressed, registered depth image for robot0') 
-        # TODO support for robot1
-        self.args=self.parser.parse_args() # args now contains user supplied information
         # Initialize ROS
         rospy.init_node('depth_to_grayscale_node', anonymous=True)
+        rospy.set_param("r0_cam0", "NULL")
         self.br = CvBridge()
         
+        # my_param_value = rospy.get_param('~my_param', default_value)
         # Parse topic names
-        robot0_cam0 = self.args.robot0_cam0_comp
-        robot0_depth0 = self.args.robot0_depth0_comp
+        self.robot0_cam0 = rospy.get_param("~r0_cam0")
+        # self.robot0_depth0 = self.args.robot0_depth0_comp
         
-        self.robot0_cam0_sub_ = rospy.Subscriber('robot0_cam0', Image, self.robot0_cam0_callback)
+        print()
+        print(f"_robot0_cam0: {self.robot0_cam0}")
+        print()
+
+        #self.robot0_cam0_sub_ = rospy.Subscriber('robot0_cam0', Image, self.robot0_cam0_callback)
         # self.robot0_depth0_sub_ = rospy.Subscriber('robot0_depth0', Image, self.robot0_depth0_callback)
         
         # Setup directories
-        dataset_dir = Path.cwd() + "/dataset"
+        dataset_dir = str(Path.cwd()) + "/dataset"
         self.create_folder_once(dataset_dir)
 
 
