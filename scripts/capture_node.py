@@ -41,12 +41,19 @@ class DatasetCaptureNode:
         print(f"self.robot1_depth0: {self.robot1_depth0}")
         print()
 
+        
         #self.robot0_cam0_sub_ = rospy.Subscriber('robot0_cam0', Image, self.robot0_cam0_callback)
         # self.robot0_depth0_sub_ = rospy.Subscriber('robot0_depth0', Image, self.robot0_depth0_callback)
         
         # Setup directories
-        dataset_dir = str(Path.cwd()) + "/dataset"
-        self.create_folder_once(dataset_dir)
+        dataset_dir = str(Path.cwd()) + "/src/dataset_capture/dataset/"
+        print(dataset_dir)
+        # self.create_folder_once(dataset_dir)
+
+        # create the two folders as needed
+        self.r0_cam0_dir = dataset_dir + "robot0/cam0/data/"
+        print(self.r0_cam0_dir)
+        self.delete_and_make_folder(self.r0_cam0_dir)
 
 
     def robot0_cam0_callback(self):
