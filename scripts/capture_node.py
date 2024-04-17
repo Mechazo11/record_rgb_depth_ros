@@ -20,8 +20,8 @@ class DatasetCaptureNode:
         # Commandline parameters
         # Initialize ROS
         rospy.init_node('capture_node', anonymous=True)
-        rospy.set_param("r0_cam0", "NULL")
-        rospy.set_param("r0_depth0", "NULL")
+        rospy.set_param("cam0", "NULL")
+        rospy.set_param("depth0", "NULL")
         rospy.set_param("r1_cam0", "NULL")
         rospy.set_param("r1_depth0", "NULL")
         # rospy.set_param("save_data", True)
@@ -30,10 +30,10 @@ class DatasetCaptureNode:
         
         # my_param_value = rospy.get_param('~my_param', default_value)
         # Parse topic names
-        self.robot0_cam0 = rospy.get_param("~r0_cam0")
-        self.robot0_depth0 = rospy.get_param("~r0_depth0")
-        self.robot1_cam0 = rospy.get_param("~r1_cam0")
-        self.robot1_depth0 = rospy.get_param("~r1_depth0")
+        self.robot_cam0 = rospy.get_param("~cam0")
+        self.robot_depth0 = rospy.get_param("~depth0")
+        #self.robot1_cam0 = rospy.get_param("~r1_cam0")
+        #self.robot1_depth0 = rospy.get_param("~r1_depth0")
         #self.save_data = rospy.get_param("~save_data")
         self.save_data = True
         
