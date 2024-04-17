@@ -35,3 +35,7 @@ rosrun dataset_capture capture_node.py _r0_cam0:="/robot_0/front_rgbd_camera/rgb
 ```
 rosrun dataset_capture capture_node.py _r0_cam0:="/robot_0/front_rgbd_camera/rgb/image_rect_color/compressed" _r0_depth0:="/robot_0/front_rgbd_camera/depth_registered/image_raw/compressedDepth" _r1_cam0:="FOO" _r1_depth0:="BAR"
 ```
+
+```
+rosrun dataset_capture capture_node.py _agent:=robot1 _cam0:="/robot_1/front_rgbd_camera/rgb/image_rect_color/compressed" _depth0:="/robot_1/front_rgbd_camera/depth_registered/image_raw/compressedDepth"
+```
