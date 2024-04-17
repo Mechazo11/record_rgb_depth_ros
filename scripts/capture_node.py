@@ -2,9 +2,9 @@
 
 # imports
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 from std_msgs.msg import String # To pass string messages
-from cv_bridge import CvBridge
+from cv_bridge import CvBridge, CvBridgeError
 import os # Misc. operating system interface functions
 import time # Python timing functions
 import cv2 # OpenCV
@@ -19,7 +19,7 @@ class DatasetCaptureNode:
         
         # Commandline parameters
         # Initialize ROS
-        rospy.init_node('depth_to_grayscale_node', anonymous=True)
+        rospy.init_node('capture_node', anonymous=True)
         rospy.set_param("r0_cam0", "NULL")
         rospy.set_param("r0_depth0", "NULL")
         rospy.set_param("r1_cam0", "NULL")
@@ -41,8 +41,8 @@ class DatasetCaptureNode:
         print(f"self.robot1_depth0: {self.robot1_depth0}")
         print()
 
-        
-        #self.robot0_cam0_sub_ = rospy.Subscriber('robot0_cam0', Image, self.robot0_cam0_callback)
+        # Setup subscribers
+        self.robot0_cam0_sub_ = rospy.Subscriber(self.robot0_cam0, CompressedImage, self.robot0_cam0_callback)
         # self.robot0_depth0_sub_ = rospy.Subscriber('robot0_depth0', Image, self.robot0_depth0_callback)
         
         # Setup directories
@@ -52,14 +52,26 @@ class DatasetCaptureNode:
 
         # create the two folders as needed
         self.r0_cam0_dir = dataset_dir + "robot0/cam0/data/"
-        print(self.r0_cam0_dir)
+        self.r0_depth0_dir = dataset_dir + "robot0/depth0/data/"
         self.delete_and_make_folder(self.r0_cam0_dir)
+        self.delete_and_make_folder(self.r0_depth0_dir)
 
+        print("Initialization complete!!")
 
-    def robot0_cam0_callback(self):
+    def robot0_cam0_callback(self,data):
         """rgb image callback for robot0"""
         # Initialize work variables
+        print("robot0_cam0 callback!")
         rgb_img = None
+        try:
+            rgb_img = self.br.compressed_imgmsg_to_cv2(data, "bgr8")
+        except CvBridgeError as e:
+            print(e)
+            
+        # Display the image
+        cv2.imshow("Robot0 Camera 0", rgb_img)
+        cv2.waitKey(1)  # Wait for a key press (1 millisecond)
+        
 
     def robot0_depth0_callback(self):
         pass
@@ -88,15 +100,17 @@ class DatasetCaptureNode:
         bx = int(ros_msg.header.stamp.to_time() * 1000) # sec.nanosec in float to long integer
         return bx
 
-    def run(self):
-        """Method to keep ROS node alive, blocking loop."""
-        rospy.spin()
+    # def run(self):
+    #     """Method to keep ROS node alive, blocking loop."""
+    #     print("Running")
+    #     rospy.spin()
 
 # Main entry point of the script
 if __name__ == '__main__':
+    node = DatasetCaptureNode()
+    
     try:
-        node = DatasetCaptureNode()
-        # node.run()
+        rospy.spin()
     except rospy.ROSInterruptException:
         rospy.loginfo("ROSInterruptException Detected, terminating node!")
         rospy.signal_shutdown("Shutdown requested by user")
