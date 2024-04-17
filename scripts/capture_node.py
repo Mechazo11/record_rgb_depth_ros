@@ -24,6 +24,7 @@ class DatasetCaptureNode:
         rospy.set_param("r0_depth0", "NULL")
         rospy.set_param("r1_cam0", "NULL")
         rospy.set_param("r1_depth0", "NULL")
+        rospy.set_param("save_data", False)
         
         self.br = CvBridge()
         
@@ -80,7 +81,7 @@ class DatasetCaptureNode:
             print(e)
 
         try:
-            #cv2.imwrite(im_path,rgb_img)
+            cv2.imwrite(im_path,rgb_img)
             pass
         except:  # noqa: E722
             print("Failed to write rgb image for robot0_cam0!!")
@@ -92,10 +93,9 @@ class DatasetCaptureNode:
 
     def robot0_depth0_callback(self, msg):
         """depth image callback for robot0"""
-        
-        print("depth0_callback")
-        
         # 'msg' as type CompressedImage
+        depth_timestamp = int(rospy.Time.to_sec(msg.header.stamp) * 1000)
+        #print(depth_timestamp)
         depth_fmt, compr_type = msg.format.split(';')
         # remove white space
         depth_fmt = depth_fmt.strip()
@@ -108,7 +108,9 @@ class DatasetCaptureNode:
         depth_header_size = 12
         raw_data = msg.data[depth_header_size:]
 
-        depth_img_raw = cv2.imdecode(np.fromstring(raw_data, np.uint8), cv2.IMREAD_UNCHANGED)
+        #depth_img_raw = cv2.imdecode(np.fromstring(raw_data, np.uint8), cv2.IMREAD_UNCHANGED)
+        # Suggested by numpy
+        depth_img_raw = cv2.imdecode(np.frombuffer(raw_data, np.uint8), cv2.IMREAD_UNCHANGED)
         
         if depth_img_raw is None:
             # probably wrong header size
@@ -120,7 +122,7 @@ class DatasetCaptureNode:
             # TODO write raw depth data
         
         elif depth_fmt == "32FC1":
-            print("Mono32 depth image")
+            # print("Mono32 depth image")
             raw_header = msg.data[:depth_header_size]
             # header: int, float, float
             [compfmt, depthQuantA, depthQuantB] = struct.unpack('iff', raw_header)
@@ -130,21 +132,19 @@ class DatasetCaptureNode:
             # depth_img_scaled provides distance in meters as f32
             # for storing it as png, we need to convert it to 16UC1 again (depth in mm)
             depth_img_mm = (depth_img_scaled*1000).astype(np.uint16)
+            depth_path = self.r0_depth0_dir + str(depth_timestamp)+".png"
             
-            # cv2.imwrite()
+            try:
+                cv2.imwrite(depth_path, depth_img_mm)
+            except:
+                print("Failed to write depth image for robot0_depth0!!")
 
             depth_img_mm_8bit = cv2.normalize(depth_img_mm, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
             cv2.imshow("Robot0 depth0", depth_img_mm_8bit)
             cv2.waitKey(1)  # Wait for a key press (1 millisecond)
-
-            try:
-                pass
-            except:
-                print("Failed to write rgb image for robot1_cam0!!")
             
-            #cv2.imwrite(os.path.join(path_depth, "depth_" + str(msg.header.stamp) + ".png"), depth_img_mm)
         else:
-            raise Exception("Failed to decode depth data")
+            raise Exception("Depth data is not 8UC1, 16UC1 or 32FC1")
 
     #! EXPERIMENTAL, trying the top function first
     def convert_compressedDepth_to_cv2(self, compressed_depth):
